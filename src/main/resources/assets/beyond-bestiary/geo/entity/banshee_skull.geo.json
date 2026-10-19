@@ -1,0 +1,169 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.banshee_skull",
+				"texture_width": 128,
+				"texture_height": 192,
+				"visible_bounds_width": 2,
+				"visible_bounds_height": 2,
+				"visible_bounds_offset": [
+					0,
+					0.25,
+					0
+				]
+			},
+			"bones": [
+				{
+					"name": "skull",
+					"pivot": [
+						-0.03536,
+						-1.865,
+						3.07487
+					],
+					"cubes": [
+						{
+							"origin": [
+								-4.0,
+								0.02,
+								-4.0
+							],
+							"size": [
+								8,
+								7,
+								8
+							],
+							"uv": [
+								0,
+								128
+							]
+						},
+						{
+							"origin": [
+								-5.0,
+								0.0,
+								-5.0
+							],
+							"size": [
+								10,
+								8,
+								10
+							],
+							"uv": [
+								0,
+								0
+							]
+						}
+					]
+				},
+				{
+					"name": "right_jaw",
+					"pivot": [
+						0.0,
+						0.06,
+						3.0
+					],
+					"parent": "skull",
+					"cubes": [
+						{
+							"origin": [
+								-3.0,
+								-1.0,
+								-3.0
+							],
+							"size": [
+								6,
+								1,
+								5
+							],
+							"uv": [
+								32,
+								128
+							]
+						},
+						{
+							"origin": [
+								-4.0,
+								-1.99,
+								-4.0
+							],
+							"size": [
+								8,
+								2,
+								7
+							],
+							"uv": [
+								40,
+								14
+							]
+						}
+					]
+				},
+				{
+					"name": "eyes3",
+					"pivot": [
+						4.0,
+						-6.99,
+						-0.6
+					],
+					"parent": "skull"
+				},
+				{
+					"name": "right_eye3",
+					"pivot": [
+						-2.5,
+						3.0,
+						-4.55
+					],
+					"parent": "eyes3",
+					"cubes": [
+						{
+							"origin": [
+								-3.0,
+								2.0,
+								-5.05
+							],
+							"size": [
+								1,
+								2,
+								1
+							],
+							"uv": [
+								68,
+								128
+							]
+						}
+					]
+				},
+				{
+					"name": "left_eye3",
+					"pivot": [
+						2.5,
+						3.0,
+						-4.55
+					],
+					"parent": "eyes3",
+					"cubes": [
+						{
+							"origin": [
+								2.0,
+								2.0,
+								-5.05
+							],
+							"size": [
+								1,
+								2,
+								1
+							],
+							"uv": [
+								68,
+								128
+							]
+						}
+					]
+				}
+			]
+		}
+	]
+}

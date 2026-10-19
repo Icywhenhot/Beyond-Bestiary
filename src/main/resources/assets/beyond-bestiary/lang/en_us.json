@@ -1,0 +1,17 @@
+{
+	"entity.beyond-bestiary.banshee": "Banshee",
+	"entity.beyond-bestiary.banshee_decoy": "Banshee",
+	"entity.beyond-bestiary.banshee_skull": "Banshee Skull",
+	"item.beyond-bestiary.frozen_wisp": "Frozen Wisp",
+	"item.beyond-bestiary.banshee_spawn_egg": "Banshee Spawn Egg",
+	"subtitles.beyond-bestiary.entity.banshee.ambient": "Banshee moans",
+	"subtitles.beyond-bestiary.entity.banshee.hurt": "Banshee hurts",
+	"subtitles.beyond-bestiary.entity.banshee.death": "Banshee shrieks",
+	"subtitles.beyond-bestiary.entity.banshee.spotted": "Banshee gasps",
+	"subtitles.beyond-bestiary.entity.banshee.scream": "Banshee screams",
+	"subtitles.beyond-bestiary.entity.banshee.windup": "Banshee draws breath",
+	"subtitles.beyond-bestiary.entity.banshee.wail": "Banshee wails",
+	"subtitles.beyond-bestiary.entity.banshee.swipe": "Banshee swipes",
+	"subtitles.beyond-bestiary.entity.banshee.dissolve": "Banshee fades",
+	"subtitles.beyond-bestiary.entity.banshee.skull": "Banshee hurls a skull"
+}

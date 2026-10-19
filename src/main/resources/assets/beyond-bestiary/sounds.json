@@ -1,0 +1,42 @@
+{
+	"entity.banshee.ambient": {
+		"subtitle": "subtitles.beyond-bestiary.entity.banshee.ambient",
+		"sounds": [{"name": "entity.vex.ambient", "type": "event", "pitch": 0.6}]
+	},
+	"entity.banshee.hurt": {
+		"subtitle": "subtitles.beyond-bestiary.entity.banshee.hurt",
+		"sounds": [{"name": "entity.vex.hurt", "type": "event", "pitch": 0.7}]
+	},
+	"entity.banshee.death": {
+		"subtitle": "subtitles.beyond-bestiary.entity.banshee.death",
+		"sounds": [{"name": "entity.ghast.death", "type": "event", "pitch": 0.6}]
+	},
+	"entity.banshee.spotted": {
+		"subtitle": "subtitles.beyond-bestiary.entity.banshee.spotted",
+		"sounds": [{"name": "entity.ghast.scream", "type": "event", "pitch": 1.3}]
+	},
+	"entity.banshee.scream": {
+		"subtitle": "subtitles.beyond-bestiary.entity.banshee.scream",
+		"sounds": [{"name": "entity.ghast.scream", "type": "event", "pitch": 0.7}]
+	},
+	"entity.banshee.windup": {
+		"subtitle": "subtitles.beyond-bestiary.entity.banshee.windup",
+		"sounds": [{"name": "entity.warden.sonic_charge", "type": "event", "pitch": 1.2}]
+	},
+	"entity.banshee.wail": {
+		"subtitle": "subtitles.beyond-bestiary.entity.banshee.wail",
+		"sounds": [{"name": "entity.warden.sonic_boom", "type": "event", "pitch": 1.3}]
+	},
+	"entity.banshee.swipe": {
+		"subtitle": "subtitles.beyond-bestiary.entity.banshee.swipe",
+		"sounds": [{"name": "entity.player.attack.sweep", "type": "event", "pitch": 0.8}]
+	},
+	"entity.banshee.dissolve": {
+		"subtitle": "subtitles.beyond-bestiary.entity.banshee.dissolve",
+		"sounds": [{"name": "block.glass.break", "type": "event", "pitch": 0.6}]
+	},
+	"entity.banshee.skull": {
+		"subtitle": "subtitles.beyond-bestiary.entity.banshee.skull",
+		"sounds": [{"name": "entity.wither.shoot", "type": "event", "pitch": 1.4}]
+	}
+}
