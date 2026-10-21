@@ -7,13 +7,11 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.util.Color;
 
-public class BansheeDecoyRenderer extends GeoEntityRenderer<BansheeDecoy> {
+public class BansheeDecoyRenderer extends BansheeBody<BansheeDecoy> {
 	public BansheeDecoyRenderer(EntityRendererProvider.Context ctx) {
 		super(ctx, new DefaultedEntityGeoModel<>(BeyondBestiary.id("banshee")));
-		addRenderLayer(new BansheeEyes<>(this, (d, pt) -> 0xffff3b3b));
 		shadowRadius = 0;
 	}
 
@@ -24,6 +22,6 @@ public class BansheeDecoyRenderer extends GeoEntityRenderer<BansheeDecoy> {
 
 	@Override
 	public Color getRenderColor(BansheeDecoy d, float pt, int light) {
-		return Color.ofARGB(0, 255, 255, 255);
+		return Color.ofARGB(56, 255, 255, 255);
 	}
 }

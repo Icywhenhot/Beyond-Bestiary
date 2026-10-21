@@ -10,9 +10,8 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
-public class BansheeSkullRenderer extends GeoEntityRenderer<BansheeSkull> {
+public class BansheeSkullRenderer extends BansheeBody<BansheeSkull> {
 	public BansheeSkullRenderer(EntityRendererProvider.Context ctx) {
 		super(ctx, new GeoModel<>() {
 			@Override
@@ -30,7 +29,6 @@ public class BansheeSkullRenderer extends GeoEntityRenderer<BansheeSkull> {
 				return BeyondBestiary.id("animations/entity/banshee.animation.json");
 			}
 		});
-		addRenderLayer(new BansheeEyes<>(this, (s, pt) -> 0xffff3b3b));
 	}
 
 	@Override

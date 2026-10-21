@@ -9,26 +9,12 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.util.Color;
 
-public class BansheeRenderer extends GeoEntityRenderer<Banshee> {
+public class BansheeRenderer extends BansheeBody<Banshee> {
 	public BansheeRenderer(EntityRendererProvider.Context ctx) {
 		super(ctx, new DefaultedEntityGeoModel<>(BeyondBestiary.id("banshee")));
-		addRenderLayer(new BansheeEyes<>(this, BansheeRenderer::eyes));
 		shadowRadius = 0.5f;
-	}
-
-	static int eyes(Banshee b, float pt) {
-		int rgb = switch (b.phase()) {
-			case Banshee.WATCHING -> 0x9fd8ff;
-			case Banshee.STALKING -> 0xffc24a;
-			default -> 0xff3b3b;
-		};
-		if (b.phantasm() <= 0)
-			return 0xff000000 | rgb;
-		float k = 0.35f + 0.65f * (0.5f + 0.5f * Mth.sin((b.tickCount + pt) * 0.35f));
-		return 0xff000000 | (int) ((rgb >> 16 & 255) * k) << 16 | (int) ((rgb >> 8 & 255) * k) << 8 | (int) ((rgb & 255) * k);
 	}
 
 	@Override

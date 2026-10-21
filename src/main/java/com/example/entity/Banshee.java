@@ -14,6 +14,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
@@ -50,7 +51,6 @@ public class Banshee extends Monster implements GeoEntity {
 
 	static final EntityDataAccessor<Integer> PHASE = SynchedEntityData.defineId(Banshee.class, EntityDataSerializers.INT);
 	static final EntityDataAccessor<Integer> PHANTASM = SynchedEntityData.defineId(Banshee.class, EntityDataSerializers.INT);
-	static final EntityDataAccessor<Boolean> DARK = SynchedEntityData.defineId(Banshee.class, EntityDataSerializers.BOOLEAN);
 
 	static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.banshee.idle");
 	static final RawAnimation STALK = RawAnimation.begin().thenLoop("animation.banshee.stalk");
@@ -59,8 +59,8 @@ public class Banshee extends Monster implements GeoEntity {
 	final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	final Map<UUID, Integer> gaze = new HashMap<>();
 
-	int action, actionTick, phaseTimer = 300, meleeCd, skullCd = 40, wailCd = 200;
-	boolean faded, creeping, fury;
+	int action, actionTick, phaseTimer = 300, meleeCd, skullCd = 40, wailCd = 200, cloneCd = 100;
+	boolean creeping, fury;
 	Player prey;
 
 	public float fade, fadeO;
@@ -74,8 +74,8 @@ public class Banshee extends Monster implements GeoEntity {
 
 	public static AttributeSupplier.Builder attrs() {
 		return Monster.createMonsterAttributes()
-				.add(Attributes.MAX_HEALTH, 60)
-				.add(Attributes.ATTACK_DAMAGE, 7)
+				.add(Attributes.MAX_HEALTH, 36)
+				.add(Attributes.ATTACK_DAMAGE, 4)
 				.add(Attributes.MOVEMENT_SPEED, 0.25)
 				.add(Attributes.FLYING_SPEED, 0.3)
 				.add(Attributes.FOLLOW_RANGE, 64)
@@ -91,7 +91,6 @@ public class Banshee extends Monster implements GeoEntity {
 		super.defineSynchedData(b);
 		b.define(PHASE, WATCHING);
 		b.define(PHANTASM, 0);
-		b.define(DARK, false);
 	}
 
 	@Override
@@ -122,7 +121,9 @@ public class Banshee extends Monster implements GeoEntity {
 		if (!level().isClientSide)
 			return;
 		fadeO = fade;
-		float want = entityData.get(DARK) ? 0.14f : 1;
+		float want = 1;
+		if (phase() == STALKING)
+			want = level().getNearestPlayer(this, 10) != null ? 0.14f : 0;
 		if (phantasm() > 0)
 			want = Math.min(want, 0.22f);
 		fade += Mth.clamp(want - fade, -0.08f, 0.08f);
@@ -131,9 +132,6 @@ public class Banshee extends Monster implements GeoEntity {
 	@Override
 	protected void customServerAiStep() {
 		super.customServerAiStep();
-
-		if (tickCount % 5 == 0)
-			entityData.set(DARK, level().getMaxLocalRawBrightness(BlockPos.containing(getEyePosition())) <= 7);
 
 		if (meleeCd > 0) meleeCd--;
 		if (skullCd > 0) skullCd--;
@@ -157,7 +155,7 @@ public class Banshee extends Monster implements GeoEntity {
 		int ph = phantasm();
 		if (ph > 0)
 			entityData.set(PHANTASM, ph - 1);
-		else if (!faded && phase() == HUNTING && getHealth() < getMaxHealth() / 3)
+		else if (phase() == HUNTING && valid(getTarget()) && --cloneCd <= 0)
 			vanish();
 
 		stare();
@@ -182,6 +180,7 @@ public class Banshee extends Monster implements GeoEntity {
 				hunt(prey);
 			}
 			default -> {
+				clearClones();
 				entityData.set(PHASE, WATCHING);
 				phaseTimer = 200 + random.nextInt(300);
 				fury = false;
@@ -264,8 +263,10 @@ public class Banshee extends Monster implements GeoEntity {
 				}
 			}
 			case MELEE -> {
-				if (n == 9 && t != null && distanceToSqr(t) < 12)
-					doHurtTarget(t);
+				if (n == 9 && t != null && distanceToSqr(t) < 12 && doHurtTarget(t)) {
+					t.knockback(2, getX() - t.getX(), getZ() - t.getZ());
+					t.hurtMarked = true;
+				}
 				if (n >= 26)
 					action = NONE;
 			}
@@ -312,7 +313,7 @@ public class Banshee extends Monster implements GeoEntity {
 	}
 
 	void vanish() {
-		faded = true;
+		cloneCd = 160 + random.nextInt(100);
 		entityData.set(PHANTASM, 300);
 		LivingEntity c = getTarget() != null ? getTarget() : this;
 		for (int i = 0; i < 3; i++) {
@@ -329,16 +330,35 @@ public class Banshee extends Monster implements GeoEntity {
 
 	@Override
 	public boolean hurt(DamageSource src, float amt) {
+		if (src.is(DamageTypeTags.IS_PROJECTILE))
+			return false;
 		boolean ok = super.hurt(src, amt);
-		if (ok && !level().isClientSide && phase() != HUNTING && src.getEntity() instanceof LivingEntity e && valid(e))
-			hunt(e);
+		if (ok && !level().isClientSide) {
+			clearClones();
+			cloneCd = 100;
+			if (phase() != HUNTING && src.getEntity() instanceof LivingEntity e && valid(e))
+				hunt(e);
+		}
 		return ok;
+	}
+
+	void clearClones() {
+		entityData.set(PHANTASM, 0);
+		for (BansheeDecoy d : level().getEntitiesOfClass(BansheeDecoy.class, getBoundingBox().inflate(96), d -> d.owner == this))
+			d.poof();
+	}
+
+	@Override
+	public boolean canBeHitByProjectile() {
+		return false;
 	}
 
 	@Override
 	public void die(DamageSource src) {
-		if (!level().isClientSide)
+		if (!level().isClientSide) {
+			clearClones();
 			triggerAnim("main", "death");
+		}
 		super.die(src);
 	}
 
@@ -384,7 +404,6 @@ public class Banshee extends Monster implements GeoEntity {
 		super.addAdditionalSaveData(tag);
 		tag.putInt("Phase", phase());
 		tag.putInt("PhaseTime", phaseTimer);
-		tag.putBoolean("Faded", faded);
 	}
 
 	@Override
@@ -392,7 +411,6 @@ public class Banshee extends Monster implements GeoEntity {
 		super.readAdditionalSaveData(tag);
 		entityData.set(PHASE, Mth.clamp(tag.getInt("Phase"), WATCHING, HUNTING));
 		phaseTimer = tag.getInt("PhaseTime");
-		faded = tag.getBoolean("Faded");
 	}
 
 	@Override
@@ -496,7 +514,8 @@ public class Banshee extends Monster implements GeoEntity {
 	}
 
 	class Hunt extends Goal {
-		int flit, dash;
+		int flit;
+		double orbit;
 
 		Hunt() {
 			setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
@@ -515,7 +534,6 @@ public class Banshee extends Monster implements GeoEntity {
 
 		@Override
 		public void stop() {
-			dash = 0;
 			halt();
 		}
 
@@ -528,14 +546,9 @@ public class Banshee extends Monster implements GeoEntity {
 			double d = distanceToSqr(t);
 			boolean sees = getSensing().hasLineOfSight(t);
 
-			if (dash > 0) {
-				dash--;
-				go(t.getX(), t.getY(), t.getZ(), fury ? 1.15 : 0.9);
-				if (d < 6 && meleeCd <= 0) {
-					dash = 0;
-					meleeCd = 25;
-					begin(MELEE, "melee");
-				}
+			if (d < 9 && meleeCd <= 0) {
+				meleeCd = 50;
+				begin(MELEE, "melee");
 				return;
 			}
 			if (d < 100 && sees && wailCd <= 0 && random.nextInt(80) == 0) {
@@ -548,16 +561,16 @@ public class Banshee extends Monster implements GeoEntity {
 				begin(SKULL, "skull");
 				return;
 			}
-			if (d < 225 && meleeCd <= 0 && random.nextInt(fury ? 10 : 20) == 0) {
-				dash = 30;
-				return;
-			}
-
-			if (d > 144) {
+			if (d < 64) {
+				double a = Mth.atan2(getZ() - t.getZ(), getX() - t.getX());
+				go(t.getX() + Math.cos(a) * 12, t.getY() + 1, t.getZ() + Math.sin(a) * 12, 1.1);
+			} else if (d > 256) {
 				go(t.getX(), t.getY() + 1, t.getZ(), fury ? 0.8 : 0.6);
 			} else if (--flit <= 0 || !moveControl.hasWanted()) {
-				flit = 8 + random.nextInt(14);
-				double a = random.nextDouble() * Math.PI * 2, r = 3 + random.nextDouble() * 3;
+				flit = 12 + random.nextInt(12);
+				if (orbit == 0 || random.nextInt(8) == 0)
+					orbit = random.nextBoolean() ? 0.6 : -0.6;
+				double a = Mth.atan2(getZ() - t.getZ(), getX() - t.getX()) + orbit, r = 10 + random.nextDouble() * 4;
 				go(t.getX() + Math.cos(a) * r, t.getY() + 1 + random.nextDouble() * 2, t.getZ() + Math.sin(a) * r, fury ? 0.7 : 0.5);
 			}
 		}
